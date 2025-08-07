@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase 연결 테스트</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase 연결 테스트</h1>
+    <button onclick="testConnection()">연결 테스트</button>
+    <button onclick="createTables()">테이블 생성</button>
+    <button onclick="insertSampleData()">샘플 데이터 삽입</button>
+    <button onclick="listUsers()">사용자 목록 조회</button>
+    <div id="result"></div>
+
+    <script>
+        const { createClient } = supabase
+        const supabaseUrl = 'https://soghyilhoxjuvgrrszcy.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNvZ2h5aWxob3hqdXZncnJzemN5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ1MzA0MjYsImV4cCI6MjA3MDEwNjQyNn0.N-84Bw7a7IoJKfKMk_6M9-2KwxyxOYxODHb0TFuW4QQ'
+        const client = createClient(supabaseUrl, supabaseKey)
+        
+        const resultDiv = document.getElementById('result')
+        
+        async function testConnection() {
+            try {
+                const { data, error } = await client.from('users').select('count')
+                if (error) {
+                    resultDiv.innerHTML = `<h3>연결 실패:</h3><pre>${JSON.stringify(error, null, 2)}</pre>`
+                } else {
+                    resultDiv.innerHTML = `<h3>연결 성공!</h3><pre>${JSON.stringify(data, null, 2)}</pre>`
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<h3>에러:</h3><pre>${err}</pre>`
+            }
+        }
+        
+        async function createTables() {
+            resultDiv.innerHTML = '<h3>테이블 생성 중...</h3><p>Supabase 대시보드에서 SQL Editor를 사용해 supabase_schema_fixed.sql 파일을 실행해주세요.</p>'
+        }
+        
+        async function insertSampleData() {
+            try {
+                // 사용자 추가
+                const users = [
+                    { name: '아빠', role: 'admin' },
+                    { name: '아들', role: 'user' },
+                    { name: '엄마', role: 'user' }
+                ]
+                
+                for (const user of users) {
+                    const { error } = await client.from('users').upsert(user, { onConflict: 'name' })
+                    if (error) console.error('User insert error:', error)
+                }
+                
+                // 간식 추가
+                const { data: adminUser } = await client.from('users').select('id').eq('name', '아빠').single()
+                
+                if (adminUser) {
+                    const snacks = [
+                        { name: '초콜릿 쿠키', description: '달콤한 초콜릿이 들어간 바삭한 쿠키', created_by: adminUser.id },
+                        { name: '과일 젤리', description: '여러 과일 맛이 나는 쫀득한 젤리', created_by: adminUser.id },
+                        { name: '감자칩', description: '바삭바삭한 감자로 만든 칩', created_by: adminUser.id },
+                        { name: '초코파이', description: '부드러운 마시멜로가 들어간 초코파이', created_by: adminUser.id }
+                    ]
+                    
+                    for (const snack of snacks) {
+                        const { error } = await client.from('snacks').upsert(snack, { onConflict: 'name' })
+                        if (error) console.error('Snack insert error:', error)
+                    }
+                }
+                
+                resultDiv.innerHTML = '<h3>샘플 데이터 삽입 완료!</h3>'
+            } catch (err) {
+                resultDiv.innerHTML = `<h3>에러:</h3><pre>${err}</pre>`
+            }
+        }
+        
+        async function listUsers() {
+            try {
+                const { data, error } = await client.from('users').select('*')
+                if (error) {
+                    resultDiv.innerHTML = `<h3>조회 실패:</h3><pre>${JSON.stringify(error, null, 2)}</pre>`
+                } else {
+                    resultDiv.innerHTML = `<h3>사용자 목록:</h3><pre>${JSON.stringify(data, null, 2)}</pre>`
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<h3>에러:</h3><pre>${err}</pre>`
+            }
+        }
+    </script>
+</body>
+</html>
