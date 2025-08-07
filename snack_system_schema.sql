@@ -8,6 +8,13 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc', NOW())
 );
 
+
+    
+
+
+
+
+    --- --- 
 -- 2. snacks 테이블 생성 (간식 목록)
 CREATE TABLE IF NOT EXISTS snacks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
