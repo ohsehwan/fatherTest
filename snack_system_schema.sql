@@ -13,9 +13,10 @@ CREATE TABLE IF NOT EXISTS users (
 
 
 
-
     --- --- 
--- 2. snacks 테이블 생성 (간식 목록)
+
+    ---ㅁㄴㅇㄹㅁㅇㄹㄴ
+-- 2. snacks 테이블 생성 (간식 목록)ㅁㄴㅇㄹㄴㅁㅇㄹㅁㅇㄴㄹㅁㄴㅇㄹㅇㅁㄴ
 CREATE TABLE IF NOT EXISTS snacks (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
